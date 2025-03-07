@@ -1,18 +1,23 @@
 import re
 import argparse
 import os
+import json
+
+print("--- Cool latex abbreviation finder ---")
 
 parser = argparse.ArgumentParser()
 parser.add_argument("folder", help="Path to find text files")
 parser.add_argument("--make-tex", help="Make a tex file with the abbreviations")
+parser.add_argument("--output", help="Output path, default is output in this repo", default="output")
 args = parser.parse_args()
 
+if os.path.isabs(args.output):
+    outputpath = args.output
+else:
+    outputpath = os.path.join(os.getcwd(), args.output)
+print(f"Output will be saved in {outputpath}")
 
 def main():
-    print("--- Cool latex abbreviation finder ---")
-    
-    args = parser.parse_args()
-    
     tex_files = []
     
     if os.path.isabs(args.folder):
@@ -57,9 +62,14 @@ def main():
         print(f"Total unique: {len(output)}\n")
         print(output)
         
+        jsonresult = json.dumps({value: "" for value in output}, indent=4)
+        with open(os.path.join(outputpath, "abbreviations.json"), "w") as outfile:
+            outfile.write(jsonresult)
+            outfile.close()
+        
     except Exception as e:
         print(e)
-        print("Error opening file")
+        print("Now fix it")
         return
     
 def make_tex():

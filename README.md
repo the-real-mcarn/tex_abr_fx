@@ -1,0 +1,2 @@
+# LaTeX Abbreviation Fixer
+Quick and dirty script for the boys. Collects all words that are just uppercase letters and makes a data file, you add the definitions to this, then run the script again and it will generate some LaTeX code that works with the `acro` package. 

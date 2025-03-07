@@ -15,26 +15,34 @@ if os.path.isabs(args.output):
     outputpath = args.output
 else:
     outputpath = os.path.join(os.getcwd(), args.output)
+
+outputJson = os.path.join(outputpath, "abbreviations.json")
+outputTex = os.path.join(outputpath, "abbreviations.tex")
 print(f"Output will be saved in {outputpath}")
 
 def main():
     tex_files = []
+    output = []
+    total = 0 
+    new = 0
     
     if os.path.isabs(args.folder):
         basepath = args.folder
     else:
         basepath = os.path.join(os.getcwd(), args.folder)
-    print(f"Looking for tex files in {basepath} \n\nFound files:")
+    print(f"Looking for tex files in {basepath}")
     
+    if os.path.exists(outputJson) == True:
+        print(f"Using existing data file at {outputJson}")
+        output = json.load(open(outputJson))
+
+    print("\nFound files:")
     for root, dirs, files in os.walk(basepath):
         for file in files:
             if file.endswith(".tex"):
                 result = os.path.join(root, file)
                 tex_files.append(result)
                 print(result)
-    
-    output = []
-    total = 0 
     
     try:
         for path in tex_files: 
@@ -53,19 +61,22 @@ def main():
                     for match in regex:
                         total += 1
                         if match[1] not in output:
-                            output.append(match[1])
+                            new += 1
+                            output[match[1]] = ""
 
-        output.sort()
+        output = dict(sorted(output.items()))
         file.close()
 
         print(f"\nTotal found: {total}")
+        print(f"New found: {new}")
         print(f"Total unique: {len(output)}\n")
-        print(output)
         
-        jsonresult = json.dumps({value: "" for value in output}, indent=4)
-        with open(os.path.join(outputpath, "abbreviations.json"), "w") as outfile:
+        jsonresult = json.dumps(output, indent=4)
+        with open(outputJson, "w") as outfile:
             outfile.write(jsonresult)
             outfile.close()
+        
+        print(f"Abbreviations are saved in {outputJson}, now define them. If a word has been wrongly identified as an abbreviation (which will definitely happen), leave the value empty but leave it in the json or it will be identified again. If all is good then you can make the tex file with --make-tex. Definitions will be kept between runs.")
         
     except Exception as e:
         print(e)

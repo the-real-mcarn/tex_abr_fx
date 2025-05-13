@@ -68,7 +68,7 @@ def main():
                             new += 1
                             output[match[1]] = ""
 
-        output = dict(sorted(output.items()))
+        output = dict(sorted(output.items(), key=lambda item: item[0].lower()))
         file.close()
 
         print(f"\nTotal found: {total}")
